@@ -1,46 +1,57 @@
 package main
 
 import (
-    "fmt"
-    "context"
-    "google.golang.org/grpc"
     pb "../sessions/proto"
+    "context"
+    "fmt"
+    "google.golang.org/grpc"
     "google.golang.org/grpc/credentials"
+    "log"
+    "os"
 )
 
 var (
-    key = "server.crt"
+    key = "../server.crt"
     adr = "localhost:8081"
 )
 
 func main() {
+    log.SetOutput(os.Stdout)
     creds, err := credentials.NewClientTLSFromFile(key, "")
     if err != nil {
+        log.Println("Gene Story SNP File Storage Server Started.")
         panic(err)
     }
 
-    fmt.Println(creds)
-
-    conn, err := grpc.Dial("localhost:8081", grpc.WithTransportCredentials(creds))
+    conn, err := grpc.Dial(adr, grpc.WithTransportCredentials(creds))
     if err != nil {
         fmt.Println("gRPC server is not available")
         panic(err)
     }
-
     client := pb.NewSessionRouteClient(conn)
 
     res, err := client.CreateID(context.Background(), &pb.UserData{UserID: 777})
     if err != nil {
         panic(err)
     }
+    sessionid := res.Id
     fmt.Println("Check create ID: ", res.Id)
 
-    res2, err := client.CheckID(context.Background(), &pb.Session{Id: res.Id})
+
+    res2, err := client.CheckID(context.Background(), &pb.Session{Id: sessionid})
     if err != nil {
         panic(err)
     }
-
     fmt.Println("Get id", res2.UserID)
+
+    _, err = client.DeleteID(context.Background(), &pb.Session{Id: sessionid})
+
+    res2, err = client.CheckID(context.Background(), &pb.Session{Id:sessionid})
+    if err != nil {
+        fmt.Println("User session was successfully deleted")
+    } else {
+        fmt.Println("User were not successfully deleted. Id: ", res2.UserID)
+    }
 
     defer conn.Close()
 }
