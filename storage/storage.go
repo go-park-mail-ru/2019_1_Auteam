@@ -1,6 +1,7 @@
 package storage
 
 import(
+    "fmt"
     "2019_1_Auteam/models"
     "database/sql"
     _ "github.com/lib/pq"
