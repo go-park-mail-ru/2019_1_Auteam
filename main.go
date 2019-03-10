@@ -13,6 +13,7 @@ import (
     "2019_1_Auteam/storage"
     "google.golang.org/grpc/credentials"
     "2019_1_Auteam/models"
+    "2019_1_Auteam/validation_tools"
     "github.com/gorilla/mux"
     "context"
     "github.com/google/uuid"
@@ -277,10 +278,14 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
         }
     }
     if request.UserInfo.Email != nil {
-        err := s.st.ChangeEmail(userId, *request.UserInfo.Username)
-        if err != nil {
-            w.WriteHeader(http.StatusInternalServerError)
-            return
+        if !validation_tools.ValidateEmail(*request.UserInfo.Email) {
+            response.EmailValidate.Success = false
+        } else {
+            err := s.st.ChangeEmail(userId, *request.UserInfo.Username)
+            if err != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
         }
     }
     encoder := json.NewEncoder(w)
