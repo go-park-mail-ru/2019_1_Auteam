@@ -20,7 +20,7 @@ func (sr *sessionRoute) CreateID(ctx context.Context, in *pb.UserData) (*pb.Sess
 	id, err := uuid.NewUUID()
 	if err != nil {
 		log.Println("UUID generation error")
-		panic(err)
+		return _, err
 	}
 
 	sr.idStorage[id.String()] = storageData{id: in.UserID}
