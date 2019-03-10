@@ -1,10 +1,9 @@
 package main
 
 import (
-	pb "./proto"
+	pb "../protobuf"
 	"context"
 	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	"log"
 )
@@ -13,11 +12,11 @@ type storageData struct {
 	id int32
 }
 
-type SessionRoute struct {
+type sessionRoute struct {
 	idStorage map[string]storageData
 }
 
-func (sr *SessionRoute) CreateID(ctx context.Context, in *pb.UserData) (*pb.Session, error) {
+func (sr *sessionRoute) CreateID(ctx context.Context, in *pb.UserData) (*pb.Session, error) {
 	id, err := uuid.NewUUID()
 	if err != nil {
 		log.Println("UUID generation error")
@@ -28,7 +27,7 @@ func (sr *SessionRoute) CreateID(ctx context.Context, in *pb.UserData) (*pb.Sess
 	return &pb.Session{Id: id.String()}, nil
 }
 
-func (sr *SessionRoute) CheckID(ctx context.Context, in *pb.Session) (*pb.UserData, error) {
+func (sr *sessionRoute) CheckID(ctx context.Context, in *pb.Session) (*pb.UserData, error) {
 	data, exists := sr.idStorage[in.Id]
 	if !exists {
 		return nil, errors.New("session-id not exists")
@@ -37,8 +36,7 @@ func (sr *SessionRoute) CheckID(ctx context.Context, in *pb.Session) (*pb.UserDa
 	return &pb.UserData{UserID: data.id}, nil
 }
 
-func (sr *SessionRoute) DeleteID(ctx context.Context, in *pb.Session) (*pb.Empty, error) {
-	fmt.Println("DeleteID", in.Id)
+func (sr *sessionRoute) DeleteID(ctx context.Context, in *pb.Session) (*pb.Empty, error) {
 	_, exists := sr.idStorage[in.Id]
 	if !exists {
 		return nil, errors.New("session-id not exists")
