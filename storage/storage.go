@@ -69,18 +69,21 @@ func (st *PostgreStorage) AddUser(user* models.User) (error) {
 func (st *PostgreStorage) GetUserById(userId int32) (models.User, error) {
     var user models.User
     err := st.db.QueryRow(`SELECT * FROM users WHERE id = $1`, userId).Scan(&user)
+    fmt.Println(err)
     return user, err
 }
 
 func (st *PostgreStorage) GetUserByName(username string) (models.User, error) {
     var user models.User
     err := st.db.QueryRow(`SELECT * FROM users WHERE users.username = $1`, username).Scan(&user)
+    fmt.Println(err)
     return user, err
 }
 
 func (st *PostgreStorage) GetAllUsers() (models.Users, error) {
     var users models.Users
     res, err := st.db.Query(`SELECT * FROM users`)
+    fmt.Println(err)
     if err != nil {
         return users, err
     }
@@ -91,6 +94,7 @@ func (st *PostgreStorage) GetAllUsers() (models.Users, error) {
 func (st *PostgreStorage) GetSortedUsers(from int32, count int32) (models.Users, error) {
     var users models.Users
     res, err := st.db.Query(`SELECT * FROM users ORDER BY score DESC LIMIT $2 OFFSET $1`, from, count)
+    fmt.Println(err)
     if err != nil {
         return users, err
     }
@@ -100,16 +104,19 @@ func (st *PostgreStorage) GetSortedUsers(from int32, count int32) (models.Users,
 
 func (st *PostgreStorage) ChangeUsername(userID int32, newUsername string) (error) {
     _, err := st.db.Exec(`UPDATE users SET username = $1 WHERE id = $2`, newUsername, userID)
+    fmt.Println(err)
     return err
 }
 
 func (st *PostgreStorage) ChangePassword(userID int32, newPassword string) (error) {
     _, err := st.db.Exec(`UPDATE users SET password = $1 WHERE id = $2`, newPassword, userID)
+    fmt.Println(err)
     return err
 }
 
 func (st *PostgreStorage) ChangeEmail(userID int32, newEmail string) (error) {
     _, err := st.db.Exec(`UPDATE users SET email = $1 WHERE id = $2`, newEmail, userID)
+    fmt.Println(err)
     return err
 }
 
