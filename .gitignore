@@ -1,5 +1,6 @@
 *.key
 *.crt
-.idea
-.out
-.html
+.idea/*
+*.out
+*.html
+
