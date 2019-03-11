@@ -22,7 +22,8 @@ WORKDIR $GOPATH/src/2019_1_Auteam
 ADD . $GOPATH/src/2019_1_Auteam
 
 RUN go install ./
-RUN go install ./sessions_app/session_server/
+
+RUN go install ./sessions_app/sessions_server/
 
 EXPOSE 8080
 
@@ -37,4 +38,4 @@ EXPOSE 5432
 
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
-CMD service postgresql start && ./session_app/session_server/session_server && 2019_1_Auteam
+CMD service postgresql start && ./session_app/sessions_server/sessions_server && 2019_1_Auteam
