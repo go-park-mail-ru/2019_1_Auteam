@@ -377,6 +377,7 @@ func main() {
         return
     }
     mux := mux.NewRouter()
+    mux.Use(SetCors)
     media := mux.PathPrefix("/media").Subrouter()
     media.HandleFunc("/pic/{id}", server.handleMedia).Methods("GET")
     media.HandleFunc("/upload", server.handleUpload).Methods("POST")
@@ -388,7 +389,6 @@ func main() {
     userRouter.HandleFunc("/list", server.handleList).Methods("POST")
     userRouter.HandleFunc("/{username}", server.handleUsername).Methods("GET")
     userRouter.Handle("/update", server.AuthRequired(http.HandlerFunc(server.handleUserUpdate))).Methods("POST")
-
     srv := &http.Server{
         Addr:         "0.0.0.0:8080",
         WriteTimeout: time.Second * 15,
