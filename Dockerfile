@@ -18,25 +18,23 @@ ENV GOROOT /usr/lib/go-$GOVER
 ENV GOPATH /opt/go
 ENV PATH $GOROOT/bin:$GOPATH/bin:/usr/local/go/bin:$PATH
 
-WORKDIR $GOPATH/src/db-forum/
-ADD . $GOPATH/src/db-forum/
+WORKDIR $GOPATH/src/2019_1_Auteam
+ADD . $GOPATH/src/2019_1_Auteam
 
-RUN go install ./cmd/bd-forum-server
+RUN go install ./
+RUN go install ./sessions_app/session_server/
 
-EXPOSE 5000
+EXPOSE 8080
 
 USER postgres
 
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
     createdb -O docker docker &&\
-    psql -d docker -a -f ./sql/init.sql &&\
     /etc/init.d/postgresql stop
-
-RUN echo "synchronous_commit = off" >> /etc/postgresql/$PGVER/main/postgresql.conf
 
 EXPOSE 5432
 
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
-CMD service postgresql start && bd-forum-server
+CMD service postgresql start && ./session_app/session_server/session_server && 2019_1_Auteam
