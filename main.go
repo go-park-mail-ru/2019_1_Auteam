@@ -53,17 +53,21 @@ func (s *Server) CreateSession(userId int32) (string, error) {
 }
 
 func NewServer() (*Server, error) {
+	fmt.Println("try to start server")
 	creds, err := credentials.NewClientTLSFromFile(key, "")
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
 	conn, err := grpc.Dial(sessionServerAddr, grpc.WithTransportCredentials(creds))
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
 	client := pb.NewSessionRouteClient(conn)
 	st, err := storage.OpenPostgreStorage("host=postgres user=docker password=docker dbname=docker sslmode=disable")
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
 	return &Server{st, client}, nil
@@ -375,11 +379,13 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	fmt.Println("starting huetu")
 	server, err := NewServer()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println("huetat started")
 	mux := mux.NewRouter()
 	mux.Use(SetCors)
 	media := mux.PathPrefix("/media").Subrouter()
