@@ -13,8 +13,8 @@ import (
 var (
 	network = "tcp"
 	address = "localhost:8081"
-	crt     = "../../server.crt"
-	key     = "../../server.key"
+	crt     = "server.crt"
+	key     = "server.key"
 )
 
 func ServerStart() *grpc.Server {
