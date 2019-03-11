@@ -62,7 +62,7 @@ func NewServer() (*Server, error) {
 		return nil, err
 	}
 	client := pb.NewSessionRouteClient(conn)
-	st, err := storage.OpenPostgreStorage("postgres://" + os.Getenv("POSTGRE_USERNAME") + "@localhost/" + os.Getenv("DB_NAME") + "?sslmode=disable")
+	st, err := storage.OpenPostgreStorage("host=postgres user=docker password=docker dbname=back_db sslmode=disable")
 	if err != nil {
 		return nil, err
 	}
