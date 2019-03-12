@@ -35,23 +35,17 @@ func (s *Server) CreateSession(userId int32) (string, error) {
 	return res.Id, nil
 }
 
-func NewServer() (*Server, error) {
-	fmt.Println("try to start server")
+func ConnectToSessionService() (client pb.SessionRouteClient, err error) {
 	creds, err := credentials.NewClientTLSFromFile(key, "")
 	if err != nil {
 		fmt.Println(err.Error())
-		return nil, err
+		return
 	}
 	conn, err := grpc.Dial(sessionServerAddr, grpc.WithTransportCredentials(creds))
 	if err != nil {
 		fmt.Println(err.Error())
-		return nil, err
+		return
 	}
-	client := pb.NewSessionRouteClient(conn)
-	st, err := storage.OpenPostgreStorage("host=postgres user=docker password=docker dbname=docker sslmode=disable")
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil, err
-	}
-	return &Server{st, client}, nil
+	client = pb.NewSessionRouteClient(conn)
+	return
 }

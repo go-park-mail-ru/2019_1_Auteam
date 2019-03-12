@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"2019_1_Auteam/storage"
 )
 
 const (
@@ -13,12 +14,21 @@ const (
 )
 
 func main() {
-	server, err := NewServer()
+	st, err := storage.OpenPostgreStorage("localhost", "docker", "docker", "docker")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return
 	}
-	r := CreateRouter(server)
+
+	pbClient, err := ConnectToSessionService()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	server := Server{st, pbClient}
+	
+	r := CreateRouter(&server)
 	srv := &http.Server{
 		Addr:         "0.0.0.0:8080",
 		WriteTimeout: time.Second * 15,
@@ -27,5 +37,8 @@ func main() {
 		Handler:      r,
 	}
 	fmt.Println("Start server")
-	srv.ListenAndServe()
+	err = srv.ListenAndServe()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }

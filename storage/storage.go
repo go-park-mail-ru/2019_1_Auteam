@@ -48,8 +48,8 @@ type PostgreStorage struct {
     db *sql.DB
 }
 
-func OpenPostgreStorage(connStr string) (*PostgreStorage, error) {
-    db, err := sql.Open("postgres", connStr)
+func OpenPostgreStorage(host string, user string, password string, dbname string) (*PostgreStorage, error) {
+    db, err := sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, user, password, dbname))
     if err != nil {
         return nil, err
     }
@@ -57,9 +57,7 @@ func OpenPostgreStorage(connStr string) (*PostgreStorage, error) {
     if err != nil {
         return nil, err
     }
-    return &PostgreStorage{
-        db,
-    }, nil
+    return &PostgreStorage{db,}, nil
 }
 
 func (st *PostgreStorage) AddUser(user* models.User) (error) {
