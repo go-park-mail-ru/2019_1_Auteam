@@ -2,15 +2,10 @@ package main
 
 import (
 	"2019_1_Auteam/storage"
+	"2019_1_Auteam/server"
 	"fmt"
 	"net/http"
 	"time"
-)
-
-const (
-	sessionServerAddr = "localhost:8081"
-	key               = "server.crt"
-	maxUploadSize     = 2 * 1024
 )
 
 func main() {
@@ -20,15 +15,15 @@ func main() {
 		return
 	}
 
-	pbClient, err := ConnectToSessionService()
+	pbClient, err := server.ConnectToSessionService()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	server := Server{st, pbClient}
+	s := server.Server{st, pbClient}
 
-	r := CreateRouter(&server)
+	r := server.CreateRouter(&s)
 	srv := &http.Server{
 		Addr:         "0.0.0.0:8080",
 		WriteTimeout: time.Second * 15,

@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"2019_1_Auteam/models"

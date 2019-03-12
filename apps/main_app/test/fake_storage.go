@@ -1,0 +1,53 @@
+package main
+
+import (
+	"2019_1_Auteam/models"
+	"2019_1_Auteam/server"
+)
+
+type FakeStorage struct {
+}
+
+func (st *FakeStorage) AddUser(user* models.User) (error) {
+	return nil	
+}
+
+func (st *FakeStorage) GetUserByName(username string) (models.User, error) {
+	return models.User{Username: "olzudina", Password: server.HashPassword("password")}, nil
+}
+
+func (st *FakeStorage) GetUserById(id int32) (models.User, error) {
+	return models.User{}, nil
+}
+
+func (st *FakeStorage) GetAllUsers() (models.Users, error) {
+	return models.Users{}, nil
+}
+
+func (st *FakeStorage) GetSortedUsers(from int32, count int32) (models.Users, error) {
+	return models.Users{}, nil
+}
+
+func (st *FakeStorage) ChangeUsername(userID int32, newUsername string) (error) {
+	return nil
+}
+
+func (st *FakeStorage) ChangePassword(userID int32, newPassword string) (error) {
+	return nil
+}
+
+func (st *FakeStorage) ChangeEmail(userID int32, newEmail string) (error) {
+	return nil
+}
+
+func (st *FakeStorage) ChangePic(userID int32, newPic string) (error) {
+	return nil
+}
+
+func (st *FakeStorage) UpdateScore(userID int32, newScore int32) (error) {
+	return nil
+}
+
+func (st *FakeStorage) UpdateLevel(userID int32, newLevel int32) (error) {
+	return nil
+}

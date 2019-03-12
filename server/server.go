@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	pb "2019_1_Auteam/apps/sessions_app/protobuf"
@@ -9,18 +9,30 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
+const (
+	sessionServerAddr = "localhost:8081"
+	key               = "server.crt"
+	maxUploadSize     = 2 * 1024
+)
+
 type Server struct {
-	st            storage.StorageI
-	sessionClient pb.SessionRouteClient
+	St            storage.StorageI
+	SessionClient pb.SessionRouteClient
 }
 
 func (s *Server) DeleteSession(session string) error {
-	_, err := s.sessionClient.DeleteID(context.Background(), &pb.Session{Id: session})
+	if s.SessionClient == nil {
+		return fmt.Errorf("No connection to grpc")
+	}
+	_, err := s.SessionClient.DeleteID(context.Background(), &pb.Session{Id: session})
 	return err
 }
 
 func (s *Server) CheckSession(session string) (int32, error) {
-	res, err := s.sessionClient.CheckID(context.Background(), &pb.Session{Id: session})
+	if s.SessionClient == nil {
+		return 0, fmt.Errorf("No connection to grpc")
+	}
+	res, err := s.SessionClient.CheckID(context.Background(), &pb.Session{Id: session})
 	if err != nil {
 		return 0, err
 	}
@@ -28,7 +40,10 @@ func (s *Server) CheckSession(session string) (int32, error) {
 }
 
 func (s *Server) CreateSession(userId int32) (string, error) {
-	res, err := s.sessionClient.CreateID(context.Background(), &pb.UserData{UserID: 777})
+	if s.SessionClient == nil {
+		return "", fmt.Errorf("No connection to grpc")
+	}
+	res, err := s.SessionClient.CreateID(context.Background(), &pb.UserData{UserID: 777})
 	if err != nil {
 		return "", err
 	}

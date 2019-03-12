@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"2019_1_Auteam/models"
@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"fmt"
 )
 
 func (s *Server) handleSession(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +18,12 @@ func (s *Server) handleSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userId, err := s.CheckSession(cookie.Value)
-	user, err := s.st.GetUserById(userId)
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	user, err := s.St.GetUserById(userId)
 	if err != nil {
 		w.WriteHeader(400)
 		return
@@ -44,20 +50,20 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	user, err := s.st.GetUserByName(*request.Username)
+	user, err := s.St.GetUserByName(*request.Username)
 	if err != nil {
 		w.WriteHeader(400)
 		return
 	}
 
-	if hashPassword(*request.Password) != user.Password {
+	if HashPassword(*request.Password) != user.Password {
 		w.WriteHeader(400)
 		return
 	}
 
 	res, err := s.CreateSession(user.ID)
 	if err != nil {
-		w.WriteHeader(500)
+		fmt.Println(err.Error())
 	}
 	expiration := time.Now().Add(2 * 24 * time.Hour)
 	cookie := http.Cookie{Name: "SessionID", Value: res, Expires: expiration}
@@ -66,32 +72,15 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
+	isValidRequest := true
+	
 	var request models.SignUpRequestJSON
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-	if request.UserInfo.Username != nil ||
-		request.UserInfo.Email != nil ||
-		request.Password != nil ||
-		!validation_tools.ValidateEmail(*request.UserInfo.Email) {
-		w.WriteHeader(400)
-		return
-	}
-	user := models.User{Username: *request.UserInfo.Username, Email: *request.UserInfo.Email, Password: hashPassword(*request.Password)}
-	err = s.st.AddUser(&user)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
 
-	sessionId, err := s.CreateSession(user.ID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-	expiration := time.Now().Add(2 * 24 * time.Hour)
-	cookie := http.Cookie{Name: "SessionID", Value: sessionId, Expires: expiration}
-	http.SetCookie(w, &cookie)
 	response := models.SignUpResponseJSON{
 		&models.ValidateJSON{
 			Success: true,
@@ -108,12 +97,51 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 		&models.ErrorJSON{},
 	}
 
-	encoder := json.NewEncoder(w)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	err = encoder.Encode(response)
+	if request.UserInfo.Username == nil {
+		response.UsernameValidate.Success = false
+		isValidRequest = false
+	}
+	if request.UserInfo.Email == nil {
+		response.EmailValidate.Success = false
+		isValidRequest = false
+	}
+	if request.Password == nil {
+		response.PasswordValidate.Success = false
+		isValidRequest = false
+	}
+
+	if !validation_tools.ValidateEmail(*request.UserInfo.Email) {
+		response.EmailValidate.Success = false
+		isValidRequest = false
+	}
+
+	if !isValidRequest {
+		w.WriteHeader(200)
+		encoder := json.NewEncoder(w)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		err = encoder.Encode(response)
+		if err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+
+	user := models.User{Username: *request.UserInfo.Username, Email: *request.UserInfo.Email, Password: HashPassword(*request.Password)}
+	err = s.St.AddUser(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+
+	sessionId, err := s.CreateSession(user.ID)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	expiration := time.Now().Add(2 * 24 * time.Hour)
+	cookie := http.Cookie{Name: "SessionID", Value: sessionId, Expires: expiration}
+	http.SetCookie(w, &cookie)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -136,7 +164,7 @@ func (s *Server) handleLoguot(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleList(w http.ResponseWriter, r *http.Request) {
 	var userPerPage int32 = 10
 	page, err := strconv.Atoi(r.FormValue("page"))
-	users, err := s.st.GetSortedUsers(int32(page)*userPerPage, userPerPage)
+	users, err := s.St.GetSortedUsers(int32(page)*userPerPage, userPerPage)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -183,17 +211,17 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 	userId := r.Context().Value("userID").(int32)
-	user, err := s.st.GetUserById(userId)
+	user, err := s.St.GetUserById(userId)
 	if err != nil {
 		w.WriteHeader(404)
 		return
 	}
 	if request.OldPass != nil {
-		if hashPassword(*request.OldPass) != user.Password {
+		if HashPassword(*request.OldPass) != user.Password {
 			response.OldPassValidate.Success = false
 		} else {
 			if request.NewPass != nil {
-				err := s.st.ChangePassword(userId, hashPassword(*request.NewPass))
+				err := s.St.ChangePassword(userId, HashPassword(*request.NewPass))
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					return
@@ -202,14 +230,14 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if request.UserInfo.Username != nil {
-		err := s.st.ChangeUsername(userId, *request.UserInfo.Username)
+		err := s.St.ChangeUsername(userId, *request.UserInfo.Username)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 	}
 	if request.UserInfo.Userpic != nil {
-		err := s.st.ChangePic(userId, *request.UserInfo.Userpic)
+		err := s.St.ChangePic(userId, *request.UserInfo.Userpic)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -219,7 +247,7 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		if !validation_tools.ValidateEmail(*request.UserInfo.Email) {
 			response.EmailValidate.Success = false
 		} else {
-			err := s.st.ChangeEmail(userId, *request.UserInfo.Username)
+			err := s.St.ChangeEmail(userId, *request.UserInfo.Username)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
@@ -236,7 +264,7 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleUsername(w http.ResponseWriter, r *http.Request) {
 	username := (mux.Vars(r))["username"]
-	user, err := s.st.GetUserByName(username)
+	user, err := s.St.GetUserByName(username)
 	if err != nil {
 		w.WriteHeader(404)
 		return
