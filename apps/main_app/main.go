@@ -1,10 +1,10 @@
 package main
 
 import (
+	"2019_1_Auteam/storage"
 	"fmt"
 	"net/http"
 	"time"
-	"2019_1_Auteam/storage"
 )
 
 const (
@@ -27,7 +27,7 @@ func main() {
 	}
 
 	server := Server{st, pbClient}
-	
+
 	r := CreateRouter(&server)
 	srv := &http.Server{
 		Addr:         "0.0.0.0:8080",

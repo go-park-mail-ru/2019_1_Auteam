@@ -1,10 +1,9 @@
 package main
 
-import(
+import (
 	"github.com/gorilla/mux"
 	"net/http"
 )
-
 
 func CreateRouter(server *Server) *mux.Router {
 	mux := mux.NewRouter()

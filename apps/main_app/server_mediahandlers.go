@@ -1,14 +1,14 @@
 package main
 
-import(
-	"net/http"
-	"io"
-	"os"
-	"github.com/gorilla/mux"
-	"github.com/google/uuid"
-	"fmt"
+import (
 	"2019_1_Auteam/models"
 	"encoding/json"
+	"fmt"
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+	"io"
+	"net/http"
+	"os"
 )
 
 func (s *Server) handleMedia(w http.ResponseWriter, r *http.Request) {
