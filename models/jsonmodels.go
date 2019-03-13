@@ -7,7 +7,7 @@ type UserInfoJSON struct {
 }
 
 type GameInfoJSON struct {
-    Score *int32 `json:"score"`
+    Score *string `json:"score"`
 }
 
 type AllInfoJSON struct {

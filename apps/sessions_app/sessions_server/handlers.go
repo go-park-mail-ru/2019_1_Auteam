@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "2019_1_Auteam/sessions_app/protobuf"
+	pb "2019_1_Auteam/apps/sessions_app/protobuf"
 	"context"
 	"errors"
 	"github.com/google/uuid"
