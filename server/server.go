@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	sessionServerAddr = "sessions_server:8081"
+	sessionServerAddr = "localhost:8081"
 	key               = "server.crt"
 	maxUploadSize     = 2 * 1024
 )

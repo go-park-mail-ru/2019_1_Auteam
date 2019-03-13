@@ -4,6 +4,7 @@ services:
     build: sessions_server/.
     ports:
      - "8081:8081"
+    network_mode: "host"
   database:
     build: postgresql/.
     ports:
