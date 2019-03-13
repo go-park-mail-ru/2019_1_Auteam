@@ -1,14 +1,14 @@
 package main
 
-import(
+import (
 	"2019_1_Auteam/models"
 	"2019_1_Auteam/server"
+	"bytes"
+	"encoding/json"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"github.com/stretchr/testify/assert"
 	"testing"
-	"encoding/json"
-	"bytes"
 )
 
 var srv = &server.Server{&FakeStorage{}, nil}
@@ -18,7 +18,7 @@ func TestLoginQueryGood(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	username := "olzudina"
 	password := "password"
-	jsmodel := models.LoginRequestJSON {
+	jsmodel := models.LoginRequestJSON{
 		Username: &username,
 		Password: &password,
 	}
@@ -34,7 +34,7 @@ func TestLoginQueryBad(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	username := "olzudina"
 	password := "passwor1"
-	jsmodel := models.LoginRequestJSON {
+	jsmodel := models.LoginRequestJSON{
 		Username: &username,
 		Password: &password,
 	}
@@ -51,10 +51,10 @@ func TestSignupGood(t *testing.T) {
 	username := "olzudina"
 	email := "olzudina@example.com"
 	password := "passwor1"
-	jsmodel := models.SignUpRequestJSON {
-		UserInfo: &models.UserInfoJSON {
+	jsmodel := models.SignUpRequestJSON{
+		UserInfo: &models.UserInfoJSON{
 			Username: &username,
-			Email: &email,
+			Email:    &email,
 		},
 		Password: &password,
 	}
@@ -66,9 +66,8 @@ func TestSignupGood(t *testing.T) {
 	}
 }
 
-
 func TestSignupBad(t *testing.T) {
-	testCases := [][3]string {
+	testCases := [][3]string{
 		{
 			"",
 			"olzudi@mail.ru",
@@ -96,69 +95,69 @@ func TestSignupBad(t *testing.T) {
 		},
 	}
 
-	expectedCases := []models.SignUpResponseJSON {
-		models.SignUpResponseJSON {
-			UsernameValidate: &models.ValidateJSON {
+	expectedCases := []models.SignUpResponseJSON{
+		models.SignUpResponseJSON{
+			UsernameValidate: &models.ValidateJSON{
 				Success: false,
 			},
-			EmailValidate: &models.ValidateJSON {
+			EmailValidate: &models.ValidateJSON{
 				Success: true,
 			},
-			PasswordValidate: &models.ValidateJSON {
+			PasswordValidate: &models.ValidateJSON{
 				Success: true,
 			},
 		},
-		models.SignUpResponseJSON {
-			UsernameValidate: &models.ValidateJSON {
+		models.SignUpResponseJSON{
+			UsernameValidate: &models.ValidateJSON{
 				Success: true,
 			},
-			EmailValidate: &models.ValidateJSON {
+			EmailValidate: &models.ValidateJSON{
 				Success: false,
 			},
-			PasswordValidate: &models.ValidateJSON {
+			PasswordValidate: &models.ValidateJSON{
 				Success: true,
 			},
 		},
-		models.SignUpResponseJSON {
-			UsernameValidate: &models.ValidateJSON {
+		models.SignUpResponseJSON{
+			UsernameValidate: &models.ValidateJSON{
 				Success: true,
 			},
-			EmailValidate: &models.ValidateJSON {
+			EmailValidate: &models.ValidateJSON{
 				Success: false,
 			},
-			PasswordValidate: &models.ValidateJSON {
+			PasswordValidate: &models.ValidateJSON{
 				Success: true,
 			},
 		},
-		models.SignUpResponseJSON {
-			UsernameValidate: &models.ValidateJSON {
+		models.SignUpResponseJSON{
+			UsernameValidate: &models.ValidateJSON{
 				Success: true,
 			},
-			EmailValidate: &models.ValidateJSON {
+			EmailValidate: &models.ValidateJSON{
 				Success: false,
 			},
-			PasswordValidate: &models.ValidateJSON {
+			PasswordValidate: &models.ValidateJSON{
 				Success: false,
 			},
 		},
-		models.SignUpResponseJSON {
-			UsernameValidate: &models.ValidateJSON {
+		models.SignUpResponseJSON{
+			UsernameValidate: &models.ValidateJSON{
 				Success: true,
 			},
-			EmailValidate: &models.ValidateJSON {
+			EmailValidate: &models.ValidateJSON{
 				Success: true,
 			},
-			PasswordValidate: &models.ValidateJSON {
+			PasswordValidate: &models.ValidateJSON{
 				Success: false,
 			},
 		},
 	}
 	for idx, _ := range testCases {
 		recorder := httptest.NewRecorder()
-		jsmodel := models.SignUpRequestJSON {
-			UserInfo: &models.UserInfoJSON {
+		jsmodel := models.SignUpRequestJSON{
+			UserInfo: &models.UserInfoJSON{
 				Username: &(testCases[idx][0]),
-				Email: &(testCases[idx][1]),
+				Email:    &(testCases[idx][1]),
 			},
 			Password: &(testCases[idx][2]),
 		}
@@ -174,10 +173,9 @@ func TestSignupBad(t *testing.T) {
 	}
 }
 
-
 func TestList(t *testing.T) {
 	recorder := httptest.NewRecorder()
-	userCases := [][4]string {
+	userCases := [][4]string{
 		{
 			"olzudina",
 			"olzudina@mail.ru",
@@ -209,12 +207,12 @@ func TestList(t *testing.T) {
 	for idx, _ := range userCases {
 		expectedUsers = append(expectedUsers,
 			models.AllInfoJSON{
-				&models.UserInfoJSON {
+				&models.UserInfoJSON{
 					Username: &(userCases[idx][0]),
-					Email:  &(userCases[idx][1]),
+					Email:    &(userCases[idx][1]),
 				},
-				&models.GameInfoJSON {
-					Score:  &(userCases[idx][2]),
+				&models.GameInfoJSON{
+					Score: &(userCases[idx][2]),
 				},
 			})
 	}
@@ -229,15 +227,15 @@ func TestList(t *testing.T) {
 	assert.JSONEq(t, string(expected), recorder.Body.String(), "Response body differs")
 }
 
-func TestUsernameGood(t* testing.T) {
+func TestUsernameGood(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	username := "olzudina"
 	score := "0"
-	jsmodel := models.AllInfoJSON {
+	jsmodel := models.AllInfoJSON{
 		UserInfo: &models.UserInfoJSON{
 			Username: &username,
 		},
-		GameInfo: &models.GameInfoJSON {
+		GameInfo: &models.GameInfoJSON{
 			Score: &score,
 		},
 	}

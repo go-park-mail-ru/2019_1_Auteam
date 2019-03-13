@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"net/http"
-	"os"
 )
 
 func (s *Server) AuthRequired(next http.Handler) http.Handler {
@@ -34,7 +33,7 @@ func SetCors(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
-			w.Header().Set("Access-Control-Allow-Origin", os.Getenv("FRONTEND_IP"))
+			w.Header().Set("Access-Control-Allow-Origin", "dev.mycodestory.ru")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
