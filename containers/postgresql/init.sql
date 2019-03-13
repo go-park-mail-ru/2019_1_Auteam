@@ -10,6 +10,4 @@ CREATE TABLE IF NOT EXISTS users(
   pic VARCHAR(120) DEFAULT NULL,
   lvl INTEGER DEFAULT 0,
   score INTEGER DEFAULT 0
-);
-CREATE UNIQUE INDEX IF NOT EXISTS "users_username_uindex" ON users (username);
-CREATE UNIQUE INDEX IF NOT EXISTS "users_score_uindex" ON users (score); 
+); 
