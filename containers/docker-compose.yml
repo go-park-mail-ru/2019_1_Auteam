@@ -1,7 +1,7 @@
 version: '3'
 services:
   sessions_server:
-    build: session_server/.
+    build: sessions_server/.
     ports:
      - "8081:8081"
     # network_mode: "host"
