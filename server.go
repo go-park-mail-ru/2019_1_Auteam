@@ -4,7 +4,6 @@ import (
 	pb "2019_1_Auteam/protobuf"
 	"fmt"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"log"
 	"net"
 	"os"
@@ -23,14 +22,7 @@ func ServerStart() *grpc.Server {
 		log.Println("Cannot bind port")
 		panic(err)
 	}
-
-	creds, err := credentials.NewServerTLSFromFile(crt, key)
-	if err != nil {
-		log.Println("Cannot load TLS configuration")
-		panic(err)
-	}
-
-	server := grpc.NewServer(grpc.Creds(creds))
+	server := grpc.NewServer()
 	pb.RegisterSessionRouteServer(server, &sessionRoute{idStorage: map[string]storageData{}})
 
 	go func() {
