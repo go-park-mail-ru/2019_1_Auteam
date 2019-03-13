@@ -8,9 +8,9 @@ import(
 )
 
 const addUserStr = `
-INSERT INTO "users"
+INSERT INTO "users" ("username", "email", "password", "pic", "lvl", "score")
 VALUES
-(default, $1, $2, $3, $4, $5, $6)
+($1, $2, $3, $4, $5, $6)
 RETURNING id;
 `
 
