@@ -7,22 +7,6 @@ import(
     _ "github.com/lib/pq"
 )
 
-
-const initStr = `CREATE TABLE IF NOT EXISTS users(
-  id INT PRIMARY KEY,
-  username VARCHAR(30)  NOT NULL,
-  email VARCHAR(30)  NOT NULL,
-  password VARCHAR(120) NOT NULL,
-  pic VARCHAR(120) DEFAULT NULL,
-  lvl INTEGER DEFAULT 0,
-  score INTEGER DEFAULT 0
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS "users_username_uindex" ON users (username);
-
-CREATE UNIQUE INDEX IF NOT EXISTS "users_score_uindex" ON users (score);
-`
-
 const addUserStr = `
 INSERT INTO "users" ("username", "email", "password", "pic", "lvl", "score")
 VALUES
@@ -50,10 +34,6 @@ type PostgreStorage struct {
 
 func OpenPostgreStorage(host string, user string, password string, dbname string) (*PostgreStorage, error) {
     db, err := sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, user, password, dbname))
-    if err != nil {
-        return nil, err
-    }
-    _, err = db.Exec(initStr)
     if err != nil {
         return nil, err
     }
