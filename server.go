@@ -12,7 +12,7 @@ import (
 
 var (
 	network = "tcp"
-	address = "localhost:8081"
+	address = "sessions_server:8081"
 	crt     = "server.crt"
 	key     = "server.key"
 )
