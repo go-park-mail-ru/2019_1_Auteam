@@ -29,7 +29,8 @@ func (s *Server) handleSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userInfo := models.UserInfoJSON{Username: &user.Username, Email: &user.Email, Userpic: &user.Pic}
-	gameInfo := models.GameInfoJSON{Score: &user.Score}
+	score := strconv.Itoa(int(user.Score))
+	gameInfo := models.GameInfoJSON{Score: &score}
 	info := models.AllInfoJSON{UserInfo: &userInfo, GameInfo: &gameInfo}
 	encoder := json.NewEncoder(w)
 
@@ -170,10 +171,24 @@ func (s *Server) handleList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	usersJson := make([]models.AllInfoJSON, 0, 0)
-	for _, u := range users {
-		userInfo := models.UserInfoJSON{Username: &u.Username, Email: &u.Email, Userpic: &u.Pic}
-		gameInfo := models.GameInfoJSON{Score: &u.Score}
+	usersJson := make([]models.AllInfoJSON, 0)
+	for idx, _ := range users {
+		userInfo := models.UserInfoJSON{
+			Username: &users[idx].Username,
+			Email: &users[idx].Email,
+			Userpic: &users[idx].Pic,
+		}
+		if *(userInfo.Username) == "" {
+			userInfo.Username = nil
+		}
+		if *(userInfo.Email) == "" {
+			userInfo.Email = nil
+		}
+		if *(userInfo.Userpic) == "" {
+			userInfo.Userpic = nil
+		}
+		score := strconv.Itoa(int(users[idx].Score))
+		gameInfo := models.GameInfoJSON{Score: &score}
 		info := models.AllInfoJSON{UserInfo: &userInfo, GameInfo: &gameInfo}
 		usersJson = append(usersJson, info)
 	}
@@ -269,6 +284,7 @@ func (s *Server) handleUsername(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		return
 	}
+	score := strconv.Itoa(int(user.Score))
 	userJson := models.AllInfoJSON{
 		&models.UserInfoJSON{
 			Username: &user.Username,
@@ -276,7 +292,7 @@ func (s *Server) handleUsername(w http.ResponseWriter, r *http.Request) {
 			Email:    &user.Email,
 		},
 		&models.GameInfoJSON{
-			Score: &user.Score,
+			Score: &score,
 		},
 	}
 	encoder := json.NewEncoder(w)

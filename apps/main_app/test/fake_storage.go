@@ -25,7 +25,13 @@ func (st *FakeStorage) GetAllUsers() (models.Users, error) {
 }
 
 func (st *FakeStorage) GetSortedUsers(from int32, count int32) (models.Users, error) {
-	return models.Users{}, nil
+	return models.Users{
+		models.User{Username: "olzudina", Email: "olzudina@mail.ru", Score: 123456 },
+		models.User{Username: "ekislukha", Email: "ekislukha@mail.ru", Score: 12345},
+		models.User{Username: "mlozhechko", Email: "mlozhechko@mail.ru", Score: 1234},
+		models.User{Username: "dpoponkin", Email: "dpoponkin@mail.ru", Score: 123},
+		models.User{Username: "vsokolov", Email: "vsokolov@mail.ru", Score: 12},
+	}, nil
 }
 
 func (st *FakeStorage) ChangeUsername(userID int32, newUsername string) (error) {

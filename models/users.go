@@ -1,13 +1,13 @@
 package models
 
 type User struct {
-	ID int32
-	Username string
-	Email string
-	Password string
-	Pic string
-	Level int32
-	Score int32
+	ID int32 `db:"id"`
+	Username string `db:"username"`
+	Email string `db:"email"`
+	Password string `db:"password"`
+	Pic string `db:"pic"`
+	Level int32 `db:"lvl"`
+	Score int32 `db:"score"`
 }
 
 type Users []User
