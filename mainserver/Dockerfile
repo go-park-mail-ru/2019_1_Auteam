@@ -6,7 +6,7 @@ WORKDIR /go/src
 RUN git clone -b RouterDev https://github.com/go-park-mail-ru/2019_1_Auteam.git
 WORKDIR /go/src/2019_1_Auteam
 RUN dep ensure
-RUN go build
+RUN go build ./apps/main_app
 COPY init.sh /go/init.sh
 CMD /go/init.sh
 

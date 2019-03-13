@@ -1,0 +1,16 @@
+version: '3'
+services:
+  sessions_server:
+    build: sessionsserver/.
+    ports:
+     - "8081:8081"
+    # network_mode: "host"
+  database:
+    build: postgres/.
+    ports:
+     - "5432:5432"
+  main_server:
+    build: mainserver/.
+    ports:
+    - "8088:8080"
+
