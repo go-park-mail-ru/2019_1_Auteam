@@ -42,16 +42,16 @@ func OpenPostgreStorage(host string, user string, password string, dbname string
     if err != nil {
         return nil, err
     }
-    db.Exec(`DROP TABLE users
-CREATE TABLE IF NOT EXISTS users(
-  id SERIAL PRIMARY KEY,
-  username VARCHAR(30)  NOT NULL,
-  email VARCHAR(30)  NOT NULL,
-  password VARCHAR(120) NOT NULL,
-  pic VARCHAR(120) DEFAULT NULL,
-  lvl INTEGER DEFAULT 0,
-  score INTEGER DEFAULT 0
-);`)
+//     db.Exec(`DROP TABLE users
+// CREATE TABLE IF NOT EXISTS users(
+//   id SERIAL PRIMARY KEY,
+//   username VARCHAR(30)  NOT NULL,
+//   email VARCHAR(30)  NOT NULL,
+//   password VARCHAR(120) NOT NULL,
+//   pic VARCHAR(120) DEFAULT NULL,
+//   lvl INTEGER DEFAULT 0,
+//   score INTEGER DEFAULT 0
+// );`)
     return &PostgreStorage{db,}, nil
 }
 
