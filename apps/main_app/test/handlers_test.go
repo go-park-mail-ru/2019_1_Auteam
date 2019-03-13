@@ -30,6 +30,7 @@ func TestLoginQueryGood(t *testing.T) {
 	}
 }
 
+
 func TestLoginQueryBad(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	username := "olzudina"
@@ -222,7 +223,6 @@ func TestList(t *testing.T) {
 	if recorder.Code != 200 {
 		t.Errorf("Expected response with status 200, actual - %v", recorder.Code)
 	}
-
 	expected, _ := json.Marshal(expectedUsers)
 	assert.JSONEq(t, string(expected), recorder.Body.String(), "Response body differs")
 }
