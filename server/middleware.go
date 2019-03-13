@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"net/http"
+	"log"
 )
 
 func (s *Server) AuthRequired(next http.Handler) http.Handler {
@@ -37,11 +38,14 @@ func SetCors(next http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-			if r.Method == http.MethodOptions {
-				w.WriteHeader(http.StatusOK)
-				return
-			}
 			next.ServeHTTP(w, r)
+		})
+}
+
+func Loggin(next http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			next.ServeHTTP(w, r)
+			log.Printf("%s: %s %s", r.Method, r.URL.Path, r.Response.Status)
 		})
 }

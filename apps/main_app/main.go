@@ -6,19 +6,25 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"os"
+	"log"
 )
 
 func main() {
+	log.SetOutput(os.Stdout)
+
 	st, err := storage.OpenPostgreStorage("database", "docker", "docker", "docker")
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println("Can't connect to database")
+		log.Println(err.Error())
 		return
 	}
 
 	pbClient, err := server.ConnectToSessionService()
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		log.Println("Can't connect to session service")
+		log.Println(err.Error())
+		pbClient = nil
 	}
 
 	s := server.Server{st, pbClient}
@@ -34,6 +40,6 @@ func main() {
 	fmt.Println("Start server")
 	err = srv.ListenAndServe()
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 }
