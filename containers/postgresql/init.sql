@@ -2,8 +2,6 @@ CREATE USER docker WITH PASSWORD 'docker';
 CREATE DATABASE docker;
 GRANT ALL PRIVILEGES ON DATABASE docker TO docker;
 
-DROP TABLE users;
-
 CREATE TABLE IF NOT EXISTS users(
   id serial PRIMARY KEY,
   username VARCHAR(30)  NOT NULL,
