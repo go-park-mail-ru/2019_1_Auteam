@@ -7,7 +7,6 @@ import (
 	"log"
 	"fmt"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -52,12 +51,7 @@ func (s *Server) CreateSession(userId int32) (string, error) {
 }
 
 func ConnectToSessionService() (client pb.SessionRouteClient, err error) {
-	creds, err := credentials.NewClientTLSFromFile(key, "")
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	conn, err := grpc.Dial(sessionServerAddr, grpc.WithTransportCredentials(creds))
+	conn, err := grpc.Dial(sessionServerAddr, grpc.WithInsecure())
 	if err != nil {
 		log.Println(err.Error())
 		return
