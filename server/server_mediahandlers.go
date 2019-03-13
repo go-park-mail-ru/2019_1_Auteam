@@ -3,7 +3,7 @@ package server
 import (
 	"2019_1_Auteam/models"
 	"encoding/json"
-	"fmt"
+	"log"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"io"
@@ -22,11 +22,11 @@ func (s *Server) handleMedia(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("upload file")
+	log.Println("upload file")
 	r.ParseMultipartForm(maxUploadSize)
 	file, handler, err := r.FormFile("my_file")
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		w.WriteHeader(400)
 		return
 	}
@@ -42,7 +42,7 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 	fileId := uuid.New()
 	f, err := os.OpenFile("./media/"+fileId.String(), os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -53,7 +53,7 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(userpicJson)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

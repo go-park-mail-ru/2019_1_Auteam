@@ -3,7 +3,6 @@ package main
 import (
 	"2019_1_Auteam/server"
 	"2019_1_Auteam/storage"
-	"fmt"
 	"net/http"
 	"time"
 	"os"
@@ -37,7 +36,7 @@ func main() {
 		IdleTimeout:  time.Second * 60,
 		Handler:      r,
 	}
-	fmt.Println("Start server")
+	log.Println("Start server")
 	err = srv.ListenAndServe()
 	if err != nil {
 		log.Println(err.Error())

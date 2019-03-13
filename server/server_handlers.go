@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	"fmt"
+	"log"
 )
 
 func (s *Server) handleSession(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +19,7 @@ func (s *Server) handleSession(w http.ResponseWriter, r *http.Request) {
 	}
 	userId, err := s.CheckSession(cookie.Value)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -64,7 +64,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	res, err := s.CreateSession(user.ID)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 	expiration := time.Now().Add(2 * 24 * time.Hour)
 	cookie := http.Cookie{Name: "SessionID", Value: res, Expires: expiration}
@@ -111,7 +111,6 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 		response.EmailValidate.Success = false
 		isValidRequest = false
 	}
-	// fmt.Println(response.PasswordValidate, request.Password)
 
 	if !isValidRequest {
 		w.WriteHeader(200)
@@ -119,7 +118,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		err = encoder.Encode(response)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -135,7 +134,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 
 	sessionId, err := s.CreateSession(user.ID)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 	expiration := time.Now().Add(2 * 24 * time.Hour)
 	cookie := http.Cookie{Name: "SessionID", Value: sessionId, Expires: expiration}
@@ -276,6 +275,10 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleUsername(w http.ResponseWriter, r *http.Request) {
 	username := (mux.Vars(r))["username"]
+	if username == "" {
+		w.WriteHeader(404)
+		return
+	}
 	user, err := s.St.GetUserByName(username)
 	if err != nil {
 		w.WriteHeader(404)

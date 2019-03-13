@@ -4,6 +4,7 @@ import (
 	pb "2019_1_Auteam/apps/sessions_app/protobuf"
 	"2019_1_Auteam/storage"
 	"context"
+	"log"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -53,12 +54,12 @@ func (s *Server) CreateSession(userId int32) (string, error) {
 func ConnectToSessionService() (client pb.SessionRouteClient, err error) {
 	creds, err := credentials.NewClientTLSFromFile(key, "")
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		return
 	}
 	conn, err := grpc.Dial(sessionServerAddr, grpc.WithTransportCredentials(creds))
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		return
 	}
 	client = pb.NewSessionRouteClient(conn)
