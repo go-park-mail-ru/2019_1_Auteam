@@ -68,41 +68,110 @@ func TestSignupGood(t *testing.T) {
 
 
 func TestSignupBad(t *testing.T) {
-	recorder := httptest.NewRecorder()
-	username := "olzudina"
-	email := "olzudinaqwe"
-	password := "passwor1"
-	jsmodel := models.SignUpRequestJSON {
-		UserInfo: &models.UserInfoJSON {
-			Username: &username,
-			Email: &email,
+	testCases := [][3]string {
+		{
+			"",
+			"olzudi@mail.ru",
+			"passwor1",
 		},
-		Password: &password,
-	}
-	jsonString, _ := json.Marshal(jsmodel)
-	req, _ := http.NewRequest("POST", "/user/signup", bytes.NewReader(jsonString))
-	router.ServeHTTP(recorder, req)
-	if recorder.Code != 200 {
-		t.Errorf("Expected response with status 200, actual - %v", recorder.Code)
+		{
+			"olzudina",
+			"",
+			"passwor1",
+		},
+		{
+			"olzudina",
+			"olzudinaqwe",
+			"passwor1",
+		},
+		{
+			"olzudina",
+			"olzudinaqwe",
+			"",
+		},
+		{
+			"olzudina",
+			"olzudina@mail.ru",
+			"",
+		},
 	}
 
-	expectedJSON := models.SignUpResponseJSON {
-		&models.ValidateJSON {
-			Success: true,
+	expectedCases := []models.SignUpResponseJSON {
+		models.SignUpResponseJSON {
+			UsernameValidate: &models.ValidateJSON {
+				Success: false,
+			},
+			EmailValidate: &models.ValidateJSON {
+				Success: true,
+			},
+			PasswordValidate: &models.ValidateJSON {
+				Success: true,
+			},
 		},
-		&models.ValidateJSON {
-			Success: true,
+		models.SignUpResponseJSON {
+			UsernameValidate: &models.ValidateJSON {
+				Success: true,
+			},
+			EmailValidate: &models.ValidateJSON {
+				Success: false,
+			},
+			PasswordValidate: &models.ValidateJSON {
+				Success: true,
+			},
 		},
-		&models.ValidateJSON {
-			Success: false,
+		models.SignUpResponseJSON {
+			UsernameValidate: &models.ValidateJSON {
+				Success: true,
+			},
+			EmailValidate: &models.ValidateJSON {
+				Success: false,
+			},
+			PasswordValidate: &models.ValidateJSON {
+				Success: true,
+			},
 		},
-		&models.ValidateJSON {
-			Success: true,
+		models.SignUpResponseJSON {
+			UsernameValidate: &models.ValidateJSON {
+				Success: true,
+			},
+			EmailValidate: &models.ValidateJSON {
+				Success: false,
+			},
+			PasswordValidate: &models.ValidateJSON {
+				Success: false,
+			},
 		},
-		&models.ErrorJSON {},
+		models.SignUpResponseJSON {
+			UsernameValidate: &models.ValidateJSON {
+				Success: true,
+			},
+			EmailValidate: &models.ValidateJSON {
+				Success: true,
+			},
+			PasswordValidate: &models.ValidateJSON {
+				Success: false,
+			},
+		},
 	}
-	expected, _ := json.Marshal(expectedJSON)
-	assert.JSONEq(t, string(expected), recorder.Body.String(), "Response body differs")
+	for idx, _ := range testCases {
+		recorder := httptest.NewRecorder()
+		jsmodel := models.SignUpRequestJSON {
+			UserInfo: &models.UserInfoJSON {
+				Username: &(testCases[idx][0]),
+				Email: &(testCases[idx][1]),
+			},
+			Password: &(testCases[idx][2]),
+		}
+		jsonString, _ := json.Marshal(jsmodel)
+		req, _ := http.NewRequest("POST", "/user/signup", bytes.NewReader(jsonString))
+		router.ServeHTTP(recorder, req)
+		if recorder.Code != 200 {
+			t.Errorf("Expected response with status 200, actual - %v", recorder.Code)
+		}
+
+		expected, _ := json.Marshal(expectedCases[idx])
+		assert.JSONEq(t, string(expected), recorder.Body.String(), "Response body differs")
+	}
 }
 
 
@@ -162,6 +231,18 @@ func TestList(t *testing.T) {
 
 func TestUsernameGood(t* testing.T) {
 	recorder := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/user/username", nil)
+	username := "olzudina"
+	score := "0"
+	jsmodel := models.AllInfoJSON {
+		UserInfo: &models.UserInfoJSON{
+			Username: &username,
+		},
+		GameInfo: &models.GameInfoJSON {
+			Score: &score,
+		},
+	}
+	expected, _ := json.Marshal(jsmodel)
+	req, _ := http.NewRequest("GET", "/user/olzudina", nil)
 	router.ServeHTTP(recorder, req)
+	assert.JSONEq(t, string(expected), recorder.Body.String(), "Response body differs")
 }

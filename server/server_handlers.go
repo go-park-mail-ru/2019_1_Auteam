@@ -83,30 +83,26 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := models.SignUpResponseJSON{
-		&models.ValidateJSON{
+		UsernameValidate: &models.ValidateJSON{
 			Success: true,
 		},
-		&models.ValidateJSON{
+		EmailValidate: &models.ValidateJSON{
 			Success: true,
 		},
-		&models.ValidateJSON{
+		PasswordValidate: &models.ValidateJSON{
 			Success: true,
 		},
-		&models.ValidateJSON{
-			Success: true,
-		},
-		&models.ErrorJSON{},
 	}
 
-	if request.UserInfo.Username == nil {
+	if request.UserInfo.Username == nil || *(request.UserInfo.Username) == "" {
 		response.UsernameValidate.Success = false
 		isValidRequest = false
 	}
-	if request.UserInfo.Email == nil {
+	if request.UserInfo.Email == nil || *(request.UserInfo.Email) == "" {
 		response.EmailValidate.Success = false
 		isValidRequest = false
 	}
-	if request.Password == nil {
+	if request.Password == nil || *(request.Password) == "" {
 		response.PasswordValidate.Success = false
 		isValidRequest = false
 	}
@@ -115,6 +111,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 		response.EmailValidate.Success = false
 		isValidRequest = false
 	}
+	// fmt.Println(response.PasswordValidate, request.Password)
 
 	if !isValidRequest {
 		w.WriteHeader(200)
@@ -294,6 +291,15 @@ func (s *Server) handleUsername(w http.ResponseWriter, r *http.Request) {
 		&models.GameInfoJSON{
 			Score: &score,
 		},
+	}
+	if userJson.UserInfo.Username == nil || *(userJson.UserInfo.Username) == "" {
+		userJson.UserInfo.Username = nil
+	}
+	if userJson.UserInfo.Email == nil || *(userJson.UserInfo.Email) == "" {
+		userJson.UserInfo.Email = nil
+	}
+	if userJson.UserInfo.Userpic == nil || *(userJson.UserInfo.Userpic) == "" {
+		userJson.UserInfo.Userpic = nil
 	}
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(userJson)

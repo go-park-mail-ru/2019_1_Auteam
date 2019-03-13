@@ -3,6 +3,7 @@ package main
 import (
 	"2019_1_Auteam/models"
 	"2019_1_Auteam/server"
+	"fmt"
 )
 
 type FakeStorage struct {
@@ -13,7 +14,11 @@ func (st *FakeStorage) AddUser(user* models.User) (error) {
 }
 
 func (st *FakeStorage) GetUserByName(username string) (models.User, error) {
-	return models.User{Username: "olzudina", Password: server.HashPassword("password")}, nil
+	if username == "olzudina" {
+		return models.User{Username: "olzudina", Password: server.HashPassword("password")}, nil
+	} else {
+		return models.User{}, fmt.Errorf("There is no %s", username)
+	}
 }
 
 func (st *FakeStorage) GetUserById(id int32) (models.User, error) {
