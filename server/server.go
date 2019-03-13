@@ -45,7 +45,7 @@ func (s *Server) CreateSession(userId int32) (string, error) {
 	if s.SessionClient == nil {
 		return "", fmt.Errorf("No connection to grpc")
 	}
-	res, err := s.SessionClient.CreateID(context.Background(), &pb.UserData{UserID: 777})
+	res, err := s.SessionClient.CreateID(context.Background(), &pb.UserData{UserID: userId})
 	log.Println("GRPC CREATE err =", err, "res =", res)
 	if err != nil {
 		return "", err
