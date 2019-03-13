@@ -25,6 +25,7 @@ func (s *Server) DeleteSession(session string) error {
 		return fmt.Errorf("No connection to grpc")
 	}
 	_, err := s.SessionClient.DeleteID(context.Background(), &pb.Session{Id: session})
+	log.Println("GRPC DELETE err = ", err)
 	return err
 }
 
@@ -36,6 +37,7 @@ func (s *Server) CheckSession(session string) (int32, error) {
 	if err != nil {
 		return 0, err
 	}
+	log.Println("GRPC CHECK err =", err, "res =", res)
 	return res.UserID, err
 }
 
@@ -44,6 +46,7 @@ func (s *Server) CreateSession(userId int32) (string, error) {
 		return "", fmt.Errorf("No connection to grpc")
 	}
 	res, err := s.SessionClient.CreateID(context.Background(), &pb.UserData{UserID: 777})
+	log.Println("GRPC CREATE err =", err, "res =", res)
 	if err != nil {
 		return "", err
 	}
