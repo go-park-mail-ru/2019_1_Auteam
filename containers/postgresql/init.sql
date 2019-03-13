@@ -11,3 +11,5 @@ CREATE TABLE IF NOT EXISTS users(
   lvl INTEGER DEFAULT 0,
   score INTEGER DEFAULT 0
 );
+CREATE UNIQUE INDEX IF NOT EXISTS "users_username_uindex" ON users (username);
+CREATE UNIQUE INDEX IF NOT EXISTS "users_score_uindex" ON users (score); 
