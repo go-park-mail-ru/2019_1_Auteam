@@ -42,7 +42,7 @@ func SetCors(next http.Handler) http.Handler {
 		})
 }
 
-func Loggin(next http.Handler) http.Handler {
+func Logging(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			next.ServeHTTP(w, r)
