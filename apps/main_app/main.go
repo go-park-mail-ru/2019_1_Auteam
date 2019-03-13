@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	st, err := storage.OpenPostgreStorage("localhost", "docker", "docker", "docker")
+	st, err := storage.OpenPostgreStorage("database", "docker", "docker", "docker")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
