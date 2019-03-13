@@ -49,6 +49,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	user, err := s.St.GetUserByName(*request.Username)
@@ -80,6 +81,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	response := models.SignUpResponseJSON{
@@ -117,7 +119,6 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !isValidRequest {
-		w.WriteHeader(200)
 		encoder := json.NewEncoder(w)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		err = encoder.Encode(response)
@@ -126,6 +127,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		w.WriteHeader(200)
 		return
 	}
 
@@ -135,6 +137,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err.Error(), "cant add user")
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	sessionId, err := s.CreateSession(user.ID)
@@ -152,6 +155,7 @@ func (s *Server) handleLoguot(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err.Error())
 		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 	c := http.Cookie{
 		Name:   "SessionID",
@@ -171,6 +175,7 @@ func (s *Server) handleList(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -229,6 +234,7 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	userId := r.Context().Value("userID").(int32)
 	user, err := s.St.GetUserById(userId)
@@ -284,6 +290,7 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
@@ -323,6 +330,7 @@ func (s *Server) handleUsername(w http.ResponseWriter, r *http.Request) {
 	err = encoder.Encode(userJson)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
