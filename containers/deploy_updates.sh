@@ -3,4 +3,4 @@
 git pull origin RouterDev && \
 sudo docker-compose stop && \
 sudo docker-compose build --no-cache && \
-sudo docker-compose run
+sudo docker-compose up

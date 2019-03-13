@@ -1,30 +1,15 @@
 package storage
 
 import(
+    "log"
     "fmt"
     "2019_1_Auteam/models"
-    "database/sql"
+    "github.com/jmoiron/sqlx"
     _ "github.com/lib/pq"
 )
 
-
-const initStr = `CREATE TABLE IF NOT EXISTS users(
-  id INT PRIMARY KEY,
-  username VARCHAR(30)  NOT NULL,
-  email VARCHAR(30)  NOT NULL,
-  password VARCHAR(120) NOT NULL,
-  pic VARCHAR(120) DEFAULT NULL,
-  lvl INTEGER DEFAULT 0,
-  score INTEGER DEFAULT 0
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS "users_username_uindex" ON users (username);
-
-CREATE UNIQUE INDEX IF NOT EXISTS "users_score_uindex" ON users (score);
-`
-
 const addUserStr = `
-INSERT INTO "users" ("username", "email", "password", "pic", "lvl", "score")
+INSERT INTO users (username, email, password, pic, lvl, score)
 VALUES
 ($1, $2, $3, $4, $5, $6)
 RETURNING id;
@@ -45,15 +30,15 @@ type StorageI interface {
 }
 
 type PostgreStorage struct {
-    db *sql.DB
+    db *sqlx.DB
 }
 
 func OpenPostgreStorage(host string, user string, password string, dbname string) (*PostgreStorage, error) {
-    db, err := sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, user, password, dbname))
+    db, err := sqlx.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, user, password, dbname))
     if err != nil {
         return nil, err
     }
-    _, err = db.Exec(initStr)
+    err = db.Ping()
     if err != nil {
         return nil, err
     }
@@ -67,55 +52,53 @@ func (st *PostgreStorage) AddUser(user* models.User) (error) {
 
 func (st *PostgreStorage) GetUserById(userId int32) (models.User, error) {
     var user models.User
-    err := st.db.QueryRow(`SELECT * FROM users WHERE id = $1`, userId).Scan(&user)
-    fmt.Println(err)
+    err := st.db.Get(&user, `SELECT * FROM users WHERE id = $1`, userId)
+    log.Println(err)
     return user, err
 }
 
 func (st *PostgreStorage) GetUserByName(username string) (models.User, error) {
     var user models.User
-    err := st.db.QueryRow(`SELECT * FROM users WHERE users.username = $1`, username).Scan(&user)
-    fmt.Println(err)
+    err := st.db.Get(&user, `SELECT * FROM users WHERE users.username = $1`, username)
+    log.Println(err)
     return user, err
 }
 
 func (st *PostgreStorage) GetAllUsers() (models.Users, error) {
     var users models.Users
-    res, err := st.db.Query(`SELECT * FROM users`)
-    fmt.Println(err)
+    err := st.db.Select(&users, `SELECT * FROM users`)
+    log.Println(err)
     if err != nil {
         return users, err
     }
-    res.Scan(&users)
     return users, err
 }
 
 func (st *PostgreStorage) GetSortedUsers(from int32, count int32) (models.Users, error) {
     var users models.Users
-    res, err := st.db.Query(`SELECT * FROM users ORDER BY score DESC LIMIT $2 OFFSET $1`, from, count)
-    fmt.Println(err)
+    err := st.db.Select(&users, `SELECT * FROM users ORDER BY score DESC LIMIT $2 OFFSET $1`, from, count)
+    log.Println(err)
     if err != nil {
         return users, err
     }
-    res.Scan(&users)
-    return users, err
+    return users, nil
 }
 
 func (st *PostgreStorage) ChangeUsername(userID int32, newUsername string) (error) {
     _, err := st.db.Exec(`UPDATE users SET username = $1 WHERE id = $2`, newUsername, userID)
-    fmt.Println(err)
+    log.Println(err)
     return err
 }
 
 func (st *PostgreStorage) ChangePassword(userID int32, newPassword string) (error) {
     _, err := st.db.Exec(`UPDATE users SET password = $1 WHERE id = $2`, newPassword, userID)
-    fmt.Println(err)
+    log.Println(err)
     return err
 }
 
 func (st *PostgreStorage) ChangeEmail(userID int32, newEmail string) (error) {
     _, err := st.db.Exec(`UPDATE users SET email = $1 WHERE id = $2`, newEmail, userID)
-    fmt.Println(err)
+    log.Println(err)
     return err
 }
 

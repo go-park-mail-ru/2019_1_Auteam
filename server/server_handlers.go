@@ -49,6 +49,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	user, err := s.St.GetUserByName(*request.Username)
@@ -80,6 +81,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	response := models.SignUpResponseJSON{
@@ -97,23 +99,26 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 	if request.UserInfo.Username == nil || *(request.UserInfo.Username) == "" {
 		response.UsernameValidate.Success = false
 		isValidRequest = false
+		log.Println("Username empty")
 	}
 	if request.UserInfo.Email == nil || *(request.UserInfo.Email) == "" {
 		response.EmailValidate.Success = false
 		isValidRequest = false
+		log.Println("Email empty")
 	}
 	if request.Password == nil || *(request.Password) == "" {
 		response.PasswordValidate.Success = false
 		isValidRequest = false
+		log.Println("Password empty")
 	}
 
 	if !validation_tools.ValidateEmail(*request.UserInfo.Email) {
 		response.EmailValidate.Success = false
 		isValidRequest = false
+		log.Println("Email invalid")
 	}
 
 	if !isValidRequest {
-		w.WriteHeader(200)
 		encoder := json.NewEncoder(w)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		err = encoder.Encode(response)
@@ -122,6 +127,7 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		w.WriteHeader(200)
 		return
 	}
 
@@ -129,7 +135,9 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 	user := models.User{Username: *request.UserInfo.Username, Email: *request.UserInfo.Email, Password: HashPassword(*request.Password)}
 	err = s.St.AddUser(&user)
 	if err != nil {
+		log.Println(err.Error(), "cant add user")
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	sessionId, err := s.CreateSession(user.ID)
@@ -145,7 +153,9 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleLoguot(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("SessionID")
 	if err != nil {
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 	c := http.Cookie{
 		Name:   "SessionID",
@@ -163,7 +173,9 @@ func (s *Server) handleList(w http.ResponseWriter, r *http.Request) {
 	page, err := strconv.Atoi(r.FormValue("page"))
 	users, err := s.St.GetSortedUsers(int32(page)*userPerPage, userPerPage)
 	if err != nil {
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -190,6 +202,7 @@ func (s *Server) handleList(w http.ResponseWriter, r *http.Request) {
 	}
 	err = json.NewEncoder(w).Encode(usersJson)
 	if err != nil {
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -219,11 +232,14 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&request)
 	if err != nil {
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	userId := r.Context().Value("userID").(int32)
 	user, err := s.St.GetUserById(userId)
 	if err != nil {
+		log.Println(err.Error())
 		w.WriteHeader(404)
 		return
 	}
@@ -234,6 +250,7 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 			if request.NewPass != nil {
 				err := s.St.ChangePassword(userId, HashPassword(*request.NewPass))
 				if err != nil {
+					log.Println(err.Error())
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
@@ -243,6 +260,7 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	if request.UserInfo.Username != nil {
 		err := s.St.ChangeUsername(userId, *request.UserInfo.Username)
 		if err != nil {
+			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -250,6 +268,7 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	if request.UserInfo.Userpic != nil {
 		err := s.St.ChangePic(userId, *request.UserInfo.Userpic)
 		if err != nil {
+			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -260,6 +279,7 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		} else {
 			err := s.St.ChangeEmail(userId, *request.UserInfo.Username)
 			if err != nil {
+				log.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -268,7 +288,9 @@ func (s *Server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(response)
 	if err != nil {
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
@@ -308,6 +330,7 @@ func (s *Server) handleUsername(w http.ResponseWriter, r *http.Request) {
 	err = encoder.Encode(userJson)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
