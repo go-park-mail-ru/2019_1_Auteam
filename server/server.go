@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	sessionServerAddr = "sessions_server:8081"
+	sessionServerAddr = "back.dev.mycodestory.ru:8081"
 	key               = "server.crt"
 	maxUploadSize     = 2 * 1024
 )
