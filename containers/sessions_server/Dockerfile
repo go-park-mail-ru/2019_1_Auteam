@@ -9,7 +9,7 @@ WORKDIR /go/src/2019_1_Auteam
 RUN dep ensure
 
 RUN echo "[Building golang application]"
-RUN go build ./apps/sessions_app
+RUN go build ./apps/sessions_app/sessions_server
 COPY init.sh /go/init.sh
 CMD /go/init.sh
 
