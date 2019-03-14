@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "2019_1_Auteam/protobuf"
+	pb "2019_1_Auteam/apps/sessions_app/protobuf"
 	"fmt"
 	"google.golang.org/grpc"
 	"log"
@@ -12,8 +12,6 @@ import (
 var (
 	network = "tcp"
 	address = "sessions_server:8081"
-	crt     = "server.crt"
-	key     = "server.key"
 )
 
 func ServerStart() *grpc.Server {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "2019_1_Auteam/protobuf"
+	pb "2019_1_Auteam/apps/sessions_app/protobuf"
 	"context"
 	"fmt"
 	"testing"

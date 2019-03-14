@@ -1,32 +1,23 @@
 package main
 
 import (
-	pb "2019_1_Auteam/protobuf"
+	pb "2019_1_Auteam/apps/sessions_app/protobuf"
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"log"
 	"os"
 )
 
 var (
-	key = "../server.crt"
 	adr = "localhost:8081"
 )
 
 func main() {
 	log.SetOutput(os.Stdout)
 
-	//TLS configuration
-	creds, err := credentials.NewClientTLSFromFile(key, "")
-	if err != nil {
-		log.Println("Gene Story SNP File Storage Server Started.")
-		panic(err)
-	}
-
 	//Connect to server
-	conn, err := grpc.Dial(adr, grpc.WithTransportCredentials(creds))
+	conn, err := grpc.Dial(adr, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println("gRPC server is not available")
 		panic(err)
