@@ -1,6 +1,0 @@
-*.key
-*.crt
-.idea/*
-*.out
-*.html
-vendor/*
