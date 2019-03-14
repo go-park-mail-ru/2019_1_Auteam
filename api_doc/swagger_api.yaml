@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: Auteam beehexual api
-  version: '0.1'
+  version: '0.2'
   title: The most hexual api
 basePath: /api/v1
 tags:
@@ -159,11 +159,16 @@ paths:
         - user
       summary: Return page of users sorted by given order
       parameters:
-        - name: page
+        - name: offset
           in: query
           required: true
           type: integer
-          description: Pages from 1 to N. 10 users per page
+          description: Offset to users
+        - name: limit
+          in: query
+          required: true
+          type: integer
+          description: Count how many get
         - name: order
           in: query
           type: string
