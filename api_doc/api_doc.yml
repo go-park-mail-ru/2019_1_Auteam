@@ -9,7 +9,8 @@ tags:
     description: Operations about users
   - name: files
     description: Operations about files
-produces: [image/png]
+produces:
+  - image/png
 schemes:
   - https
   - http
@@ -22,6 +23,38 @@ parameters:
     description: Cookie session-id
 paths:
   /session:
+    patch:
+      tags:
+        - user
+      summary: Update user
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      produces:
+        - application/json
+      parameters:
+        - name: username
+          in: path
+          description: Username of requested user
+          required: true
+          type: string
+        - *ref_0
+        - in: body
+          name: body
+          description: Updated user object
+          required: true
+          schema:
+            $ref: '#/definitions/updateUserRequest'
+      responses:
+        '200':
+          description: User was successfully updated
+        '400':
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/updateResponse'
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
     post:
       tags:
         - user
@@ -80,7 +113,7 @@ paths:
           description: Invalid operation
         '500':
           description: Internal server error
-  '/user/{username}':
+  '/users/{username}':
     get:
       tags:
         - user
@@ -103,57 +136,7 @@ paths:
           description: Invalid operation. Username is not exists
         '500':
           description: Internal server error
-  '/user':
-    post:
-      tags:
-        - user
-      summary: Update user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
-      produces:
-        - application/json
-      parameters:
-        - *ref_0
-        - in: body
-          name: body
-          description: Updated user object
-          required: true
-          schema:
-            $ref: '#/definitions/updateUserRequest'
-      responses:
-        '200':
-          description: User was successfully updated
-        '400':
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/updateResponse'
-        '404':
-          description: User not found
-        '500':
-          description: Internal server error
-    put:
-      tags:
-        - user
-      summary: User signup
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          description: Created user object
-          required: true
-          schema:
-            $ref: '#/definitions/signupRequest'
-      responses:
-        '200':
-          description: successful operation
-        '400':
-          description: wrong request
-          schema:
-            $ref: '#/definitions/signupResponse'
-        '500':
-          description: internal server error
-  '/users':
+  /users:
     get:
       tags:
         - user
@@ -184,13 +167,35 @@ paths:
           description: Invalid operation
         '500':
           description: Internal server error
-  '/image':
     put:
-      tags: 
+      tags:
+        - user
+      summary: User signup
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Created user object
+          required: true
+          schema:
+            $ref: '#/definitions/signupRequest'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: wrong request
+          schema:
+            $ref: '#/definitions/signupResponse'
+        '500':
+          description: internal server error
+  /media/image:
+    put:
+      tags:
         - files
       summary: Upload file
       consumes:
-        - multipart/form-data  # and/or application/x-www-form-urlencoded
+        - multipart/form-data
       parameters:
         - name: file
           in: formData
@@ -204,16 +209,16 @@ paths:
           description: Invalid operation
         '500':
           description: Internal server error
-  '/image/{path.img}':
+  '/media/image/{path.img}':
     get:
-      tags: 
+      tags:
         - files
       summary: Get file
-      parameters: 
-        - name: 'path.img'
+      parameters:
+        - name: path.img
           in: path
           type: string
-          description: 'Path to requested image'
+          description: Path to requested image
           required: true
       produces:
         - image/jpeg
@@ -227,7 +232,6 @@ paths:
           description: Invalid operation
         '500':
           description: Internal server error
-          
 definitions:
   userInfo:
     type: object
