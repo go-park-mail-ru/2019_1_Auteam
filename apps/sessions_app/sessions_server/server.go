@@ -11,9 +11,7 @@ import (
 
 var (
 	network = "tcp"
-	address = "localhost:8081"
-	crt     = "server.crt"
-	key     = "server.key"
+	address = "sessions_server:8081"
 )
 
 func ServerStart() *grpc.Server {
@@ -22,7 +20,6 @@ func ServerStart() *grpc.Server {
 		log.Println("Cannot bind port")
 		panic(err)
 	}
-
 	server := grpc.NewServer()
 	pb.RegisterSessionRouteServer(server, &sessionRoute{idStorage: map[string]storageData{}})
 
