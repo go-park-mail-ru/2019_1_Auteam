@@ -184,16 +184,16 @@ func TestList(t *testing.T) {
 		},
 		{
 			"ekislukha",
-			"ekislukha@mail.ru",
+			"",
 			"12345",
 		},
 		{
 			"mlozhechko",
 			"mlozhechko@mail.ru",
-			"1234",
+			"0",
 		},
 		{
-			"dpoponkin",
+			"",
 			"dpoponkin@mail.ru",
 			"123",
 		},
@@ -206,16 +206,22 @@ func TestList(t *testing.T) {
 
 	expectedUsers := make([]models.AllInfoJSON, 0, 5)
 	for idx, _ := range userCases {
-		expectedUsers = append(expectedUsers,
-			models.AllInfoJSON{
-				&models.UserInfoJSON{
-					Username: &(userCases[idx][0]),
-					Email:    &(userCases[idx][1]),
-				},
-				&models.GameInfoJSON{
-					Score: &(userCases[idx][2]),
-				},
-			})
+		allInfo := models.AllInfoJSON{
+			&models.UserInfoJSON{
+				Username: &(userCases[idx][0]),
+				Email:    &(userCases[idx][1]),
+			},
+			&models.GameInfoJSON{
+				Score: &(userCases[idx][2]),
+			},
+		}
+		if *(allInfo.UserInfo.Username) == "" {
+			allInfo.UserInfo.Username = nil
+		}
+		if *(allInfo.UserInfo.Email) == "" {
+			allInfo.UserInfo.Email = nil
+		}
+		expectedUsers = append(expectedUsers, allInfo)
 	}
 
 	req, _ := http.NewRequest("GET", "/user/list", nil)
@@ -226,6 +232,17 @@ func TestList(t *testing.T) {
 	expected, _ := json.Marshal(expectedUsers)
 	assert.JSONEq(t, string(expected), recorder.Body.String(), "Response body differs")
 }
+
+func TestListBad(t *testing.T) {
+	recorder := httptest.NewRecorder()
+
+	req, _ := http.NewRequest("GET", "/user/list?page=-1", nil)
+	router.ServeHTTP(recorder, req)
+	if recorder.Code != 500 {
+		t.Errorf("Expected response with status 500, actual - %v", recorder.Code)
+	}
+}
+
 
 func TestUsernameGood(t *testing.T) {
 	recorder := httptest.NewRecorder()
