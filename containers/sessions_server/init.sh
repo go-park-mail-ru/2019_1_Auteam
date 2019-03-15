@@ -1,1 +1,1 @@
-/go/src/2019_1_Auteam/2019_1_Auteam
+/go/src/2019_1_Auteam/sessions_server

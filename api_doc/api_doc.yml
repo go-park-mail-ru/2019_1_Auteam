@@ -1,0 +1,344 @@
+swagger: '2.0'
+info:
+  description: Auteam beehexual api
+  version: '0.2'
+  title: The most hexual api
+basePath: /api/v1
+tags:
+  - name: user
+    description: Operations about users
+  - name: files
+    description: Operations about files
+produces:
+  - image/png
+schemes:
+  - https
+  - http
+parameters:
+  sessionCookie: &ref_0
+    name: cookie
+    in: header
+    required: true
+    type: string
+    description: Cookie session-id
+paths:
+  /session:
+    patch:
+      tags:
+        - user
+      summary: Update user
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      produces:
+        - application/json
+      parameters:
+        - name: username
+          in: path
+          description: Username of requested user
+          required: true
+          type: string
+        - *ref_0
+        - in: body
+          name: body
+          description: Updated user object
+          required: true
+          schema:
+            $ref: '#/definitions/updateUserRequest'
+      responses:
+        '200':
+          description: User was successfully updated
+        '400':
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/updateResponse'
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - user
+      summary: User login
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: The user name for login
+          required: true
+          schema:
+            $ref: '#/definitions/loginRequst'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Set-Cookie:
+              type: string
+              description: Set session cookie
+        '400':
+          description: Invalid username/password supplied
+        '500':
+          description: Internal server error
+    get:
+      tags:
+        - user
+      summary: Get current session profile info
+      produces:
+        - application/json
+      parameters:
+        - *ref_0
+      responses:
+        '200':
+          description: Return current session user profile
+          schema:
+            $ref: '#/definitions/allInfo'
+        '400':
+          description: Invalid request
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - user
+      summary: User logout
+      parameters:
+        - *ref_0
+      responses:
+        '200':
+          description: Successfull operation
+          headers:
+            Set-Cookie:
+              type: string
+              description: Removes session cookie
+        '400':
+          description: Invalid operation
+        '500':
+          description: Internal server error
+  '/users/{username}':
+    get:
+      tags:
+        - user
+      summary: Get user by user name
+      description: ''
+      produces:
+        - application/json
+      parameters:
+        - name: username
+          in: path
+          description: Username of requested user
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/allInfo'
+        '400':
+          description: Invalid operation. Username is not exists
+        '500':
+          description: Internal server error
+  /users:
+    get:
+      tags:
+        - user
+      summary: Return page of users sorted by given order
+      parameters:
+        - name: offset
+          in: query
+          required: true
+          type: integer
+          description: Offset to users
+        - name: limit
+          in: query
+          required: true
+          type: integer
+          description: Count how many get
+        - name: order
+          in: query
+          type: string
+          description: 'Default order: descening by score'
+      responses:
+        '200':
+          description: Successfull operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/allInfo'
+        '400':
+          description: Invalid operation
+        '500':
+          description: Internal server error
+    put:
+      tags:
+        - user
+      summary: User signup
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Created user object
+          required: true
+          schema:
+            $ref: '#/definitions/signupRequest'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: wrong request
+          schema:
+            $ref: '#/definitions/signupResponse'
+        '500':
+          description: internal server error
+  /media/image:
+    put:
+      tags:
+        - files
+      summary: Upload file
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          in: formData
+          description: Uploaded picture
+          required: true
+          type: file
+      responses:
+        '200':
+          description: Successfull operation
+        '400':
+          description: Invalid operation
+        '500':
+          description: Internal server error
+  '/media/image/{path.img}':
+    get:
+      tags:
+        - files
+      summary: Get file
+      parameters:
+        - name: path.img
+          in: path
+          type: string
+          description: Path to requested image
+          required: true
+      produces:
+        - image/jpeg
+        - image/png
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: file
+        '400':
+          description: Invalid operation
+        '500':
+          description: Internal server error
+definitions:
+  userInfo:
+    type: object
+    properties:
+      username:
+        type: string
+        format: identity
+        example: myusername
+      userpic:
+        type: string
+        format: url
+        example: pic.jpg
+      email:
+        type: string
+        format: email
+        example: me@example.com
+  gameInfo:
+    type: object
+    properties:
+      score:
+        type: integer
+        example: '1220'
+  allInfo:
+    type: object
+    properties:
+      userInfo:
+        $ref: '#/definitions/userInfo'
+      gameInfo:
+        $ref: '#/definitions/gameInfo'
+  signupRequest:
+    type: object
+    required:
+      - userInfo
+      - password
+    properties:
+      userInfo:
+        $ref: '#/definitions/userInfo'
+      password:
+        type: string
+        format: password
+  loginRequst:
+    type: object
+    required:
+      - username
+      - password
+    properties:
+      username:
+        type: string
+        format: identity
+        example: myusername
+      password:
+        type: string
+        format: password
+  updateUserRequest:
+    type: object
+    required:
+      - oldpass
+    properties:
+      userInfo:
+        $ref: '#/definitions/userInfo'
+      oldPass:
+        type: string
+      newPass:
+        type: string
+        example: ''
+        description: Leave the newpass field empty to not change the password
+  error:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Some error
+  validate:
+    type: object
+    required:
+      - success
+    properties:
+      success:
+        type: boolean
+        example: false
+      error:
+        $ref: '#/definitions/error'
+  signupResponse:
+    type: object
+    properties:
+      usernameValidate:
+        $ref: '#/definitions/validate'
+      passwordValidate:
+        $ref: '#/definitions/validate'
+      emailValidate:
+        $ref: '#/definitions/validate'
+      userpicValidate:
+        $ref: '#/definitions/validate'
+      error:
+        $ref: '#/definitions/error'
+  updateResponse:
+    type: object
+    properties:
+      usernameValidate:
+        $ref: '#/definitions/validate'
+      newpassValidate:
+        $ref: '#/definitions/validate'
+      oldpassValidate:
+        $ref: '#/definitions/validate'
+      emailValidate:
+        $ref: '#/definitions/validate'
+      userpicValidate:
+        $ref: '#/definitions/validate'
+      error:
+        $ref: '#/definitions/error'
