@@ -1,0 +1,6 @@
+*.key
+*.crt
+.idea/*
+*.out
+*.html
+*.DS_Store
