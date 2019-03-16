@@ -11,6 +11,10 @@ import (
 	"log"
 )
 
+const (
+	limitDefault = 10
+)
+
 func SetSessionCoockie(sessionId string, w http.ResponseWriter) {
 	expiration := time.Now().Add(2 * 24 * time.Hour)
 	cookie := http.Cookie{
@@ -98,9 +102,15 @@ func (s *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleList(w http.ResponseWriter, r *http.Request) {
-	var userPerPage int32 = 10
-	page, err := strconv.Atoi(r.FormValue("page"))
-	users, err := s.St.GetSortedUsers(int32(page)*userPerPage, userPerPage)
+	limit, err := strconv.Atoi(r.FormValue("limit"))
+	if err != nil {
+		limit = limitDefault
+	}
+	offset, err := strconv.Atoi(r.FormValue("offset"))
+	if err != nil {
+		offset = 0
+	}
+	users, err := s.St.GetSortedUsers(int32(offset), int32(limit))
 	if err != nil {
 		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

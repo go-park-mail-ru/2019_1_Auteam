@@ -33,6 +33,12 @@ func (st *FakeStorage) GetAllUsers() (models.Users, error) {
 }
 
 func (st *FakeStorage) GetSortedUsers(from int32, count int32) (models.Users, error) {
+	if from < 0 {
+		return nil, fmt.Errorf("from < 0")
+	}
+	if count < 0 {
+		return nil, fmt.Errorf("count < 0")
+	}
 	return models.Users{
 		models.User{Username: "olzudina", Email: "olzudina@mail.ru", Score: 123456},
 		models.User{Username: "ekislukha", Email: "", Score: 12345},
