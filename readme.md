@@ -1,8 +1,8 @@
 #### Auteam Beehexual project
 
 ##### Arcitecture
-For now project consists of 3 services. 
-Two apps `main_app` and `sessions_app` and postgres db
+For now project consists of 4 services: 
+`main_app`, `sessions_app`, postgresql and nginx
 
 ##### Deploy
 To deploy project execute `deploy.sh [options]`.
