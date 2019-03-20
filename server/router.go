@@ -7,7 +7,6 @@ import (
 
 func CreateRouter(server *Server) *mux.Router {
 	mux := mux.NewRouter()
-	mux.Use(SetCors)
 	mux.Use(Logging)
 	media := mux.PathPrefix("/media").Subrouter()
 	media.HandleFunc("/image/", server.handleUpload)

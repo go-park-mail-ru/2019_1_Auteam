@@ -3,6 +3,7 @@ package main
 import (
 	"2019_1_Auteam/server"
 	"2019_1_Auteam/storage"
+	"github.com/gorilla/handlers"
 	"net/http"
 	"time"
 	"os"
@@ -34,7 +35,7 @@ func main() {
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
-		Handler:      r,
+		Handler:      handlers.CORS()(r),
 	}
 	log.Println("Start server")
 	err = srv.ListenAndServe()
