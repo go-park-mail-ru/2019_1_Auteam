@@ -1,0 +1,7 @@
+*.key
+*.crt
+.idea/*
+*.out
+*.html
+*.DS_Store
+/containers/nginx/frontend_dir
